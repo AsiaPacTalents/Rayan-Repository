@@ -20,6 +20,7 @@ export default function LoginPage() {
     setAccessToken: state.setAccessToken,
   }));
   const router = useRouter();
+  
   const onLogin = async () => {
     const { status, data } = await login(loginForm.email, loginForm.password);
     const loginResponse = data as LoginResponse;
@@ -57,6 +58,7 @@ export default function LoginPage() {
           }}
           type="text"
           placeholder="Email Address"
+          style={{ backgroundColor: 'white' }} // Background set to white
         ></CustomInput>
         <br />
         <CustomInput
@@ -65,6 +67,7 @@ export default function LoginPage() {
           }}
           type="password"
           placeholder="Password"
+          style={{ backgroundColor: 'white' }} // Background set to white
         ></CustomInput>
         <br />
         <CustomButton
@@ -72,6 +75,7 @@ export default function LoginPage() {
           style={{
             color: "white",
             backgroundColor: "var(--focus-primary-color)",
+            width: "100%", 
           }}
         >
           Login
@@ -82,6 +86,9 @@ export default function LoginPage() {
             style={{
               backgroundColor: "white",
               color: "var(--focus-primary-color)",
+              whiteSpace: "nowrap",
+              minWidth: "250px",
+              padding: "10px 20px",
             }}
           >
             New user? Register here

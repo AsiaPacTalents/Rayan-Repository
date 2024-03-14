@@ -1,6 +1,7 @@
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import ErrorDialog from "@/components/ErrorDialog";
+import login from "@/services/auth/login";
 import register from "@/services/auth/signup";
 import { useAuthStore } from "@/utils/zustand/store";
 import Link from "next/link";
@@ -15,9 +16,12 @@ export default function LoginPage() {
   });
   const navigate = useRouter();
   const [errMsg, setErrMsg] = useState("");
-  const { setAccessToken } = useAuthStore((state) => ({
+  const { accessToken, setAccessToken } = useAuthStore((state) => ({
+    accessToken: state.accessToken,
     setAccessToken: state.setAccessToken,
   }));
+  const router = useRouter();
+
   const onRegister = async () => {
     if (!registerForm.email.trim() || !registerForm.password.trim()) {
       setErrMsg("Email / Password cannot be empty");
@@ -27,10 +31,7 @@ export default function LoginPage() {
       setErrMsg("Confirm password is different");
       return;
     }
-    const { status, data } = await register(
-      registerForm.email,
-      registerForm.password
-    );
+    const { status, data } = await register(registerForm.email, registerForm.password);
 
     if (status === 409) {
       setErrMsg("Email already exists");
@@ -38,9 +39,7 @@ export default function LoginPage() {
     }
 
     if (status !== 201) {
-      setErrMsg(
-        "Failed to register\n\nPlease check if:\n\n1. Your email is in correct format\n2. Your password is 6 characters and longer"
-      );
+      setErrMsg("Failed to register\n\nPlease check if:\n\n1. Your email is in correct format\n2. Your password is 6 characters and longer");
       return;
     }
 
@@ -49,76 +48,51 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
-    if (useAuthStore.getState().accessToken) {
-      navigate.push("/job/list");
+    if (accessToken) {
+      router.push("/job/list");
     }
   }, []);
 
   return (
-    <div
-      style={{
-        gridArea: "2 / 2 / 4 / 3",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
+    <div style={{ gridArea: "2 / 2 / 4 / 3" }}>
+      <ErrorDialog errMsg={errMsg} setErrMsg={setErrMsg}></ErrorDialog>
       <div
         style={{
-          padding: "0px 20px 20px",
-          marginTop: "30px",
-          marginBottom: "15px",
-          backgroundColor: "white",
-          borderRadius: "8px",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          width: "650px",
-          maxWidth: "90%",
         }}
       >
-        <h2
-          style={{
-            marginTop: "0",
-            color: "black",
-            fontSize: "35px",
-            width: "100%",
-            textAlign: "center",
-          }}
-        >
-          Sign Up
-        </h2>
-        <ErrorDialog errMsg={errMsg} setErrMsg={setErrMsg}></ErrorDialog>
-
+        <h1>Register</h1>
         <CustomInput
-          onChange={(e) =>
-            setRegisterForm((old) => ({ ...old, email: e.target.value }))
-          }
+          onChange={(e) => {
+            setRegisterForm((old) => ({ ...old, email: e.target.value }));
+          }}
           type="text"
           placeholder="Email Address"
-          style={{ backgroundColor: '#E0F7FA' }}
+          style={{ backgroundColor: 'white' }} // Background set to white
         ></CustomInput>
         <br />
         <CustomInput
-          onChange={(e) =>
-            setRegisterForm((old) => ({ ...old, password: e.target.value }))
-          }
+          onChange={(e) => {
+            setRegisterForm((old) => ({ ...old, password: e.target.value }));
+          }}
           type="password"
           placeholder="Password"
-          style={{ backgroundColor: '#E0F7FA' }}
+          style={{ backgroundColor: 'white' }} // Background set to white
         ></CustomInput>
         <br />
         <CustomInput
-          onChange={(e) =>
+          onChange={(e) => {
             setRegisterForm((old) => ({
               ...old,
               confirmPassword: e.target.value,
-            }))
-          }
+            }));
+          }}
           type="password"
           placeholder="Confirm Password"
-          style={{ backgroundColor: '#E0F7FA' }}
+          style={{ backgroundColor: 'white' }} // Background set to white
         ></CustomInput>
         <br />
         <CustomButton
@@ -126,16 +100,24 @@ export default function LoginPage() {
           style={{
             color: "white",
             backgroundColor: "var(--focus-primary-color)",
+            width: "100%", 
           }}
         >
           Register
         </CustomButton>
         <br />
         <Link href="/auth/login">
-          <span style={{ cursor: "pointer", marginTop: "20px" }}>
-            <span style={{ color: "black", textDecoration: "none" }}>Old user?</span>
-            <span style={{ color: "var(--focus-primary-color)", textDecoration: "none" }}> Login here</span>
-          </span>
+          <CustomButton
+            style={{
+              backgroundColor: "white",
+              color: "var(--focus-primary-color)",
+              whiteSpace: "nowrap",
+              minWidth: "200px",
+              padding: "10px 20px",
+            }}
+          >
+            Old user? Login here
+          </CustomButton>
         </Link>
       </div>
     </div>
