@@ -40,14 +40,7 @@ export default function LoginPage() {
   }, []);
 
   return (
-    <div
-      style={{
-        gridArea: "2 / 2 / 4 / 3",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <div style={{ gridArea: "2 / 2 / 4 / 3" }}>
       <ErrorDialog errMsg={errMsg} setErrMsg={setErrMsg}></ErrorDialog>
       <div
         style={{
@@ -55,36 +48,15 @@ export default function LoginPage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-          maxWidth: "400px",
-          width: "100%",
-          minHeight: "500px",
-          paddingBottom: "130px",
         }}
       >
-        <h1
-          style={{
-            color: "black",
-            margin: "0",
-            paddingTop: "0",
-            paddingBottom: "30px",
-          }}
-        >
-          Login
-        </h1>
+        <h1>Login</h1>
         <CustomInput
           onChange={(e) => {
             setLoginForm((old) => ({ ...old, email: e.target.value }));
           }}
           type="text"
           placeholder="Email Address"
-          style={{
-            backgroundColor: "#e8f0fe", // Background color set to the one from the image
-            // Add any other styles for the input here
-          }}
         ></CustomInput>
         <br />
         <CustomInput
@@ -93,10 +65,6 @@ export default function LoginPage() {
           }}
           type="password"
           placeholder="Password"
-          style={{
-            backgroundColor: "#e8f0fe", // Background color set to the one from the image
-            // Add any other styles for the input here
-          }}
         ></CustomInput>
         <br />
         <CustomButton
@@ -109,12 +77,11 @@ export default function LoginPage() {
           Login
         </CustomButton>
         <br />
-        <Link href="/auth/signup" passHref>
+        <Link href="/auth/signup">
           <CustomButton
             style={{
               backgroundColor: "white",
               color: "var(--focus-primary-color)",
-              marginTop: "10px",
             }}
           >
             New user? Register here
