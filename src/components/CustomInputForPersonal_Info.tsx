@@ -1,3 +1,4 @@
+import { useMediaQuery } from "@mui/material";
 import React, { ChangeEventHandler } from "react";
 
 interface CustomInputForPersonal_InfoProps {
@@ -7,21 +8,22 @@ interface CustomInputForPersonal_InfoProps {
   defaultValue?: string;
   name: string;
   style?: React.CSSProperties; // Add this line
-
 }
-
+// snake case
 export default function CustomInputForPersonal_Info({
   placeholder,
   onChange,
   type,
   defaultValue,
   name,
- 
 }: CustomInputForPersonal_InfoProps) {
   const inputWrapperStyle: React.CSSProperties = {
-    position: "relative",
-    width: "calc(100% - 40px)", // Reducing the width by 20px on each side
-    padding: "0 100px", // Adding padding on the sides
+    display: "flex",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    // width: "calc(100% - 40px)", // Reducing the width by 20px on each side
+    padding: "0 10px", // Adding padding on the sides
     margin: "10px 0", // Adjust spacing as needed
   };
 
@@ -45,9 +47,7 @@ export default function CustomInputForPersonal_Info({
 
   return (
     <div style={inputWrapperStyle}>
-      <label htmlFor={name} style={labelStyle}>
-        
-      </label>
+      <label htmlFor={name} style={labelStyle}></label>
       <input
         id={name}
         name={name}
@@ -57,6 +57,6 @@ export default function CustomInputForPersonal_Info({
         type={type}
         style={inputStyle}
       />
- </div>
-);
+    </div>
+  );
 }

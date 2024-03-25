@@ -1,126 +1,85 @@
-import { apiClient } from "@/apiConfig";
+import React, { useState } from "react";
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
 import FilterDialog, { JobFilter } from "@/components/FilterDialog";
 import JobCard from "@/components/JobCard";
 import JobCardListing from "@/components/JobCardListing";
-import { Job } from "@/interface/entities/job.entity";
-import { faClose, faFilter } from "@fortawesome/free-solid-svg-icons";
+// Assuming Job type is defined somewhere globally
+import { faSlidersH } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Dialog, Slide } from "@mui/material";
-import { TransitionProps } from "@mui/material/transitions";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
-import { useQuery } from "react-query";
+import AvailableSlotsModal from "@/components/AvailableSlotsModal";
+import dayjs, { Dayjs } from "dayjs";
 
-function RenderFilterApplied(props: {
-  filters: JobFilter;
-  setFilters: React.Dispatch<React.SetStateAction<JobFilter>>;
-}) {
-  const { filters, setFilters } = props;
-  const texts: { text: string; action: () => void }[] = [];
-  if (filters.salaryRange.low !== 0 || filters.salaryRange.high !== 99999) {
-    texts.push({
-      text: `Salary Range: MYR ${filters.salaryRange.low * 500} - ${
-        filters.salaryRange.high * 500
-      }`,
-      action: () => {
-        setFilters((old) => ({
-          ...old,
-          salaryRange: { low: 0, high: 99999 },
-        }));
-      },
-    });
-  }
-  if (filters.jobType.length !== 0) {
-    filters.jobType.forEach((jt) =>
-      texts.push({
-        text: jt,
-        action: () => {
-          setFilters((old) => ({
-            ...old,
-            jobType: old.jobType.filter((x) => x !== jt),
-          }));
-        },
-      })
-    );
-  }
-  return (
-    <>
-      {texts.map((x, idx) => (
-        <div
-          key={`idx-${idx}`}
-          style={{
-            cursor: "pointer",
-            padding: "0 10px",
-            borderRadius: "10px",
-            marginRight: "10px",
-            border: "1px solid #d3adf7",
-            color: "#531dab",
-            backgroundColor: "#f9f0ff",
-            fontSize: "small",
-          }}
-          onClick={x.action}
-        >
-          <FontAwesomeIcon icon={faClose}></FontAwesomeIcon>&nbsp;
-          {x.text}
-        </div>
-      ))}
-    </>
-  );
-}
+// Dummy job data to replace fetched data
+const dummyJobs = [
+  {
+    id: "1",
+    companyName: "Tech Innovations Inc",
+    position: "Frontend Developer",
+    location: "San Francisco, CA",
+    salaryRangeStart: 70000,
+    salaryRangeEnd: 90000,
+  },
+  {
+    id: "2",
+    companyName: "Global Solutions",
+    position: "Backend Developer",
+    location: "New York, NY",
+    salaryRangeStart: 80000,
+    salaryRangeEnd: 100000,
+  },
+  {
+    id: "3",
+    companyName: "Global Solutions",
+    position: "Backend Developer",
+    location: "New York, NY",
+    salaryRangeStart: 80000,
+    salaryRangeEnd: 100000,
+  },
+  {
+    id: "4",
+    companyName: "Tech Innovations Inc",
+    position: "Frontend Developer",
+    location: "San Francisco, CA",
+    salaryRangeStart: 70000,
+    salaryRangeEnd: 90000,
+  },
+  {
+    id: "5",
+    companyName: "Global Solutions",
+    position: "Backend Developer",
+    location: "New York, NY",
+    salaryRangeStart: 80000,
+    salaryRangeEnd: 100000,
+  },
+  // Add more dummy jobs as needed
+];
 
 export default function List() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const [filters, setFilters] = useState<JobFilter>({
-    searchQuery: Boolean(router.query.search)
-      ? String(router.query.search)
-      : "",
+    searchQuery: router.query.search ? String(router.query.search) : "",
     jobType: [],
     salaryRange: { low: 0, high: 99999 },
   });
-  const { data, status } = useQuery({
-    queryKey: ["data", filters],
-    queryFn: async () => {
-      // create fetch operations
-      const findManyTsqJobs = apiClient
-        .path("/tsq-jobs")
-        .method("post")
-        .create();
-      const jobTypeFilter =
-        filters.jobType.length <= 0 ? undefined : { in: filters.jobType };
+  const [openSlots, setOpenSlots] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
 
-      const positionQuery = filters.searchQuery
-        ? {
-            contains: filters.searchQuery,
-            mode: "insensitive",
-          }
-        : undefined;
-      // fetch
-      const { status, data } = await findManyTsqJobs({
-        pager: { limit: 10, page: 1 },
-        where: {
-          jobType: jobTypeFilter,
-          position: positionQuery,
-          salaryRangeEnd: {
-            lte:
-              filters.salaryRange.high === 100
-                ? 10000000 // math.inf
-                : filters.salaryRange.high * 500,
-          },
-          salaryRangeStart: {
-            gte: filters.salaryRange.low * 500,
-          },
-        } as any,
-      });
-      return data;
-    },
-    select: (data) => {
-      const jobs: Job[] = (data as any).data;
-      return jobs;
-    },
-  });
+
+  const handleJobSelect = () => {
+    setOpenSlots(true); // Open the slots modal
+  };
+
+  const handleDateChange = (newValue: Dayjs | null) => {
+    setSelectedDate(newValue);
+  };
+
+  // Function to close the modal
+  const handleCloseSlots = () => {
+    setOpenSlots(false);
+  };
   return (
     <>
       <FilterDialog
@@ -141,13 +100,32 @@ export default function List() {
         }}
       >
         <div>
-          <div style={{ marginBottom: "10px" }}>Job Search</div>
-          <div style={{ marginBottom: "10px" }}>
+          <div
+            style={{
+              marginBottom: "10px",
+              fontSize: "25px",
+              display: "flex", // Added to make the div a flex container
+              justifyContent: "center", // Horizontally center the content
+              alignItems: "center", // Vertically center the content (if the div has a specific height)
+              height: "50px",
+            }}
+          >
+            JOB SEARCH
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr auto",
                 columnGap: "10px",
+                width: "85%",
               }}
             >
               <CustomInput
@@ -159,36 +137,27 @@ export default function List() {
                     searchQuery: e.target.value,
                   }));
                 }}
-                style={{
-                  width: "auto",
-                  color: "var(--focus-primary-color)",
-                  border: "2px solid var(--focus-primary-color)",
-                  outline: "none",
-                  textAlign: "left",
-                  fontWeight: "normal",
-                }}
                 placeholder="Enter Job title, Keyword..."
               ></CustomInput>
-              <div>
-                <CustomButton
-                  onClick={() => setOpen(true)}
-                  style={{
-                    border: "2px solid var(--focus-primary-color)",
-                    color: "var(--focus-primary-color)",
-                  }}
-                >
-                  <FontAwesomeIcon icon={faFilter}></FontAwesomeIcon>
-                </CustomButton>
-              </div>
+              <CustomButton
+                onClick={() => setOpen(true)}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  boxShadow: "none",
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faSlidersH}
+                  style={{ color: "#ffffff", fontSize: "25px" }}
+                />
+              </CustomButton>
             </div>
           </div>
-          {/* Filters applied data here:  */}
 
+          {/* Filters applied data here: */}
           <div style={{ display: "flex", flexDirection: "row" }}>
-            <RenderFilterApplied
-              filters={filters}
-              setFilters={setFilters}
-            ></RenderFilterApplied>
+            {/* Render filters applied, if any */}
           </div>
         </div>
         <div
@@ -199,22 +168,56 @@ export default function List() {
             rowGap: "20px",
           }}
         >
-          {data ? <JobCardListing data={data}></JobCardListing> : "Loading..."}
+          {/* Using JobCardListing with dummy data */}
+          <JobCardListing data={dummyJobs} onSelect={handleJobSelect} />
+          <AvailableSlotsModal
+            open={openSlots}
+            selectedDate={selectedDate}
+            handleDateChange={handleDateChange}
+            handleClose={handleCloseSlots}
+          />
         </div>
       </div>
 
       {/* Page actionables */}
-      <div style={{ gridArea: "4 / 2 / 4 / 3" }}>
+      <div
+        style={{
+          gridArea: "4 / 2 / 4 / 3",
+          display: "flex",
+          justifyContent: "center",
+          gap: "20px",
+          marginTop: "20px",
+          marginBottom: "20px",
+        }}
+      >
         <CustomButton
-          onClick={() => router.push("apply")}
+          onClick={() => router.push("/apply")}
           style={{
-            marginTop: "10px",
-            marginBottom: "10px",
+            padding: "10px 20px",
+            border: "none",
+            borderRadius: "20px",
+            backgroundColor: "#7D4AEA", // Use your primary color here
             color: "white",
-            backgroundColor: "var(--focus-primary-color)",
+            cursor: "pointer",
+            minWidth: "120px", // Adjust width as needed
           }}
         >
-          Apply
+          Search Job
+        </CustomButton>
+        <CustomButton
+          onClick={() => console.log("Handle modify action")} // Replace with your actual modify handler
+          style={{
+            padding: "10px 20px",
+
+            border: "none",
+            borderRadius: "20px",
+            backgroundColor: "#7D4AEA", // Use your secondary color here
+            color: "white",
+            cursor: "pointer",
+            minWidth: "120px", // Adjust width as needed
+          }}
+        >
+          Modify
         </CustomButton>
       </div>
     </>

@@ -1,29 +1,40 @@
-import { Job } from "@/interface/entities/job.entity";
+
+import React, { useState } from "react";
+
+import logo from "@/assets/cardLogo.jpg";
 import {
   faDollarSign,
   faLocationCrosshairs,
   faTrain,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+
+// Assuming the Job interface is defined here.
+// If it's defined globally or in another file, import it instead.
+interface Job {
+  companyName: string;
+  position: string;
+  location: string;
+  salaryRangeStart: number;
+  salaryRangeEnd: number;
+}
 
 interface JobCardProps {
   data: Job;
+  onSelect: () => void;
 }
 
-const normalColor = "var(--focus-primary-color)";
-const highlightColor = "#ffd233";
-const highlightTextColor = "#ec5675";
-
+// Helper component for rendering job tags
 function JobTag({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
         display: "inline-block",
         padding: "0 10px",
-        backgroundColor: "rgb(220,220,220)",
+        backgroundColor: "#7D4AEA",
         borderRadius: "10px",
         marginRight: "10px",
+        color: "white",
       }}
     >
       {children}
@@ -31,8 +42,14 @@ function JobTag({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function JobCard(props: JobCardProps) {
+const JobCard: React.FC<JobCardProps> = ({ data, onSelect }) => {
   const [premium, setPremium] = useState(false);
+
+  // Style variables
+  const normalColor = "var(--focus-primary-color)";
+  const highlightColor = "#ffd233";
+  const highlightTextColor = "#ec5675";
+
   return (
     <div
       style={{
@@ -41,17 +58,17 @@ export default function JobCard(props: JobCardProps) {
         gridTemplateColumns: "1fr",
         rowGap: "10px",
         fontWeight: "normal",
-        color: "var(--focus-primary-color)",
+        color: normalColor,
         backgroundColor: "white",
         padding: 20,
-        borderRadius: 15,
-        // border: `2px solid ${normalColor}`,
+        borderRadius: 35,
         border: premium
-          ? `3px solid ${highlightColor}`
-          : `2px solid ${normalColor}`,
+          ? `5px solid ${highlightColor}`
+          : `5px solid ${normalColor}`,
       }}
+      onClick={onSelect}
     >
-      {premium ? (
+      {premium && (
         <div
           style={{
             fontWeight: "bold",
@@ -66,12 +83,14 @@ export default function JobCard(props: JobCardProps) {
         >
           Premium
         </div>
-      ) : (
-        <></>
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "50px 1fr" }}>
-        <div style={{ gridRow: "1 / 3" }}>Logo</div>
+        <img
+          src={logo.src}
+          alt="Company Logo"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
         <div
           style={{
             display: "grid",
@@ -80,52 +99,39 @@ export default function JobCard(props: JobCardProps) {
             fontWeight: "bold",
           }}
         >
-          <div>{props.data.companyName}</div>
-          <div>{props.data.position}</div>
+          <div>{data.companyName}</div>
+          <div>{data.position}</div>
         </div>
       </div>
 
-      {/* Seperator */}
       <div style={{ border: "1px solid rgba(0,0,0,0.1)" }}></div>
 
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "20px 1fr",
-          columnGap: 10,
-          rowGap: 5,
-          color: "grey",
+          columnGap: "10px",
+          rowGap: "5px",
+          color: "#7D4AEA",
         }}
       >
+        <FontAwesomeIcon icon={faLocationCrosshairs} />
+        <div>{data.location}</div>
+        <FontAwesomeIcon icon={faDollarSign} />
         <div>
-          <FontAwesomeIcon icon={faLocationCrosshairs}></FontAwesomeIcon>
+          MYR {data.salaryRangeStart} - {data.salaryRangeEnd}
         </div>
-        <div>{props.data.location}</div>
-        <div>
-          <FontAwesomeIcon icon={faDollarSign}></FontAwesomeIcon>
-        </div>
-        <div>
-          MYR {props.data.salaryRangeStart} - {props.data.salaryRangeEnd}
-        </div>
-        <div>
-          <FontAwesomeIcon icon={faTrain}></FontAwesomeIcon>
-        </div>
+        <FontAwesomeIcon icon={faTrain} />
         <div>Distance to LRT</div>
-        {/* Tags */}
         <div style={{ gridColumn: "1 / 3" }}>
+          {/* Example tags - replace with actual job tags as needed */}
           <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
-          <JobTag>Allowance</JobTag>
+          <JobTag>Health Insurance</JobTag>
+          <JobTag>Remote Work</JobTag>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default JobCard;

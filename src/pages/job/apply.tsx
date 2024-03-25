@@ -22,7 +22,9 @@ export default function ApplyJob() {
     // Check for any empty fields in formData
     for (const [key, value] of Object.entries(formData)) {
       if (value.trim() === "") {
-        setErrMsg(`Please fill out the ${key.replace(/([A-Z])/g, ' $1').trim()} field.`); // Add space before capital letters for readability
+        setErrMsg(
+          `Please fill out the ${key.replace(/([A-Z])/g, " $1").trim()} field.`
+        ); // Add space before capital letters for readability
         return false;
       }
     }
@@ -79,7 +81,14 @@ export default function ApplyJob() {
           justifyContent: "center",
         }}
       >
-        <div style={{ display: "grid", rowGap: "20px", width: "100%" }}>
+        <div
+          style={{
+            display: "grid",
+            rowGap: "20px",
+            width: "100%",
+            maxWidth: "722px",
+          }}
+        >
           <CustomInputForPersonal_Info
             onChange={(e) => {
               setFormData((old) => ({ ...old, position: e.target.value }));
@@ -109,7 +118,10 @@ export default function ApplyJob() {
           />
           <CustomInputForPersonal_Info
             onChange={(e) => {
-              setFormData((old) => ({ ...old, distanceFromLRT: e.target.value }));
+              setFormData((old) => ({
+                ...old,
+                distanceFromLRT: e.target.value,
+              }));
             }}
             style={{ outline: "3px solid var(--focus-primary-color)" }}
             type="text"
@@ -118,7 +130,10 @@ export default function ApplyJob() {
           />
           <CustomInputForPersonal_Info
             onChange={(e) => {
-              setFormData((old) => ({ ...old, applicantStatus: e.target.value }));
+              setFormData((old) => ({
+                ...old,
+                applicantStatus: e.target.value,
+              }));
             }}
             style={{ outline: "3px solid var(--focus-primary-color)" }}
             type="text"
@@ -130,7 +145,9 @@ export default function ApplyJob() {
             <CustomButton
               onClick={submitApplication}
               style={{
-                backgroundColor: isSubmitting ? "grey" : "var(--focus-primary-color)",
+                backgroundColor: isSubmitting
+                  ? "grey"
+                  : "var(--focus-primary-color)",
                 color: "white",
                 marginBottom: "10px",
               }}
